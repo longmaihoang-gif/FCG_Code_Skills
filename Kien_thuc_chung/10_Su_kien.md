@@ -13,7 +13,7 @@ FCG phân loại sự kiện thành hai loại chính: **Sự kiện có sẵn (
 ### a) Một số sự kiện vòng đời phổ biến:
 * `event OnAwake()`: Kích hoạt ngay khi thực thể gắn tập lệnh được khởi tạo.
 * `event OnGameStart()`: Kích hoạt khi trận đấu chính thức bắt đầu.
-* `event OnUpdate(deltaTime float)`: Kích hoạt liên tục mỗi khung hình (dùng cho logic cần cập nhật thường xuyên).
+* `event OnUpdate()`: Kích hoạt liên tục mỗi khung hình (dùng cho logic cần cập nhật thường xuyên).
 * `event OnDestroy()`: Kích hoạt trước khi thực thể bị tiêu diệt khỏi scene để dọn dẹp tài nguyên.
 
 ### b) Ví dụ viết sự kiện trong FCG:

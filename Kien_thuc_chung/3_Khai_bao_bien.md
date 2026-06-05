@@ -54,7 +54,7 @@ graph GameRulesManager {
 
     event OnGameStart() {
         IsGameActive = true
-        TotalPlayers = GetAllPlayers().Length() // Cập nhật biến thành viên
+        TotalPlayers = List.Length(GetAllPlayers()) // Cập nhật biến thành viên
     }
 }
 ```

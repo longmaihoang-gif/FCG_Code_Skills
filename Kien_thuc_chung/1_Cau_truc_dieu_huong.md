@@ -50,7 +50,7 @@ if điều_kiện_1 {
 >   ```fcg
 >   if HP <= 0 {
 >       LogInfo("Hạ gục")
->   } else if HP < 40 { // Viết liền sau dấu đóng ngoặc nhọn }
+>   } else if HP < 40 { // Viết liền sau dấu đóng ngoặc nhọn
 >       LogInfo("Máu thấp")
 >   } else {
 >       LogInfo("Bình thường")
@@ -84,7 +84,7 @@ graph HealthChecker {
     
     // Hàm kiểm tra trạng thái sức khỏe của người chơi
     func CheckPlayerHealth(player entity<Player>) {
-        var currentHP = player<Player>.Health
+        var currentHP = player<Player>.HP
         
         if currentHP > 70.0 {
             // Máu đầy/an toàn
@@ -110,7 +110,7 @@ import "StdLibrary.fcc" as std
 graph RewardSystem {
     
     func TryGiveReward(player entity<Player>, score int) {
-        var isDead = player<Player>.Health <= 0.0
+        var isDead = player<Player>.HP <= 0
         
         // Điều kiện: Điểm > 100 VÀ người chơi không bị hạ gục (!isDead)
         if score > 100 && !isDead {
@@ -123,4 +123,4 @@ graph RewardSystem {
 ```
 
 > [!IMPORTANT]
-> Luôn nhớ cú pháp truy cập thuộc tính của Component trong FCG là: **`đối_tượng<Tên_Component>.Thuộc_tính`** (ví dụ: `player<Player>.Health`). Tuyệt đối không dùng dấu chấm trực tiếp như `player.Health` vì sẽ gây lỗi biên dịch.
+> Luôn nhớ cú pháp truy cập thuộc tính của Component trong FCG là: **`đối_tượng<Tên_Component>.Thuộc_tính`** (ví dụ: `player<Player>.HP`). Tuyệt đối không dùng dấu chấm trực tiếp như `player.HP` vì sẽ gây lỗi biên dịch.
