@@ -1,0 +1,98 @@
+// ĐỀ BÀI (QUEST):
+// Thiết lập một hệ thống lọc tin nhắn chat (Chat Filter) và định dạng tin nhắn hệ thống (System Log Formatter) khi game bắt đầu.
+// Tập lệnh chạy trên Server ([platform_server]).
+//
+// Yêu cầu chi tiết:
+// 1. Định dạng tin nhắn chào mừng (strings.FormatStr):
+//    - Tạo chuỗi thông báo định dạng: "Chào mừng %v (Cấp độ %v) đã gia nhập phòng đấu!".
+//    - Sử dụng strings.FormatStr với các tham số tên người chơi và cấp độ để xuất thông báo ra Console.
+//
+// 2. Xử lý và chuẩn hóa mã Giftcode (strings.Strip & strings.ToUpper):
+//    - Cho trước một mã giftcode thô: "   free_fire_ugc_2026   ".
+//    - Cắt khoảng trắng thừa ở hai đầu bằng strings.Strip.
+//    - Viết hoa toàn bộ giftcode bằng strings.ToUpper và in ra Console để đối chiếu.
+//
+// 3. Lọc từ cấm và cắt ngắn tin nhắn xem trước (strings.Find, strings.Replace & strings.Sub):
+//    - Cho trước tin nhắn chat của người chơi: "Chào mọi người, tôi thích hack game này lắm.".
+//    - Dùng strings.Find để kiểm tra xem tin nhắn có chứa từ "hack" không (bắt đầu tìm từ index 0).
+//    - Nếu tìm thấy, dùng strings.Replace để thay thế từ cấm "hack" thành "***".
+//    - Cắt lấy 15 ký tự đầu tiên của tin nhắn đã lọc bằng strings.Sub để làm tin nhắn xem trước (Preview) và in ra Console.
+//
+// 4. Phân tích và gộp danh sách trang bị (strings.Split & strings.Join):
+//    - Cho trước một chuỗi danh sách trang bị phân tách bởi ký tự '|': "KiemSet|GiapVang|BinhHP|KeoNgot".
+//    - Sử dụng strings.Split để tách chuỗi trên thành một danh sách các chuỗi (List<string>).
+//    - Sử dụng strings.Join để gộp các phần tử trong danh sách trên thành một chuỗi mới phân tách bởi dấu phẩy ", " và in ra Console.
+
+import "StdLibrary.fcc" as std
+import "Strings.fcc" as strings
+import "Convert.fcc" as convert
+
+[platform_server]
+graph StringProcessor {
+
+    event OnGameStart() {
+        // ==========================================
+        // PHẦN 1: ĐỊNH DẠNG TIN NHẮN CHÀO MỪNG
+        // ==========================================
+        LogInfo("--- HỆ THỐNG TIN NHẮN CHÀO MỪNG ---")
+        
+        var playerName = "Hero_A"
+        var playerLevel = 10
+        
+        // Sử dụng FormatStr để ghép các tham số động vào chuỗi định dạng
+        var welcomeMsg = strings.FormatStr("Chào mừng %v (Cấp độ %v) đã gia nhập phòng đấu!", List<object>{playerName, playerLevel})
+        LogInfo(welcomeMsg)
+        
+        // ==========================================
+        // PHẦN 2: XỬ LÝ VÀ CHUẨN HÓA GIFTCODE
+        // ==========================================
+        LogInfo("--- HỆ THỐNG GIFTCODE ---")
+        
+        var rawGiftcode = "  free_fire_ugc_2026    "
+        
+        // Cắt bỏ các khoảng trắng thừa ở hai đầu
+        var cleanGiftcode = strings.Strip(rawGiftcode)
+        
+        // Chuyển toàn bộ ký tự sang in hoa
+        var finalGiftcode = strings.ToUpper(cleanGiftcode)
+        LogInfo("Mã Giftcode đã xử lý: " + finalGiftcode)
+        
+        // ==========================================
+        // PHẦN 3: LỌC TỪ CẤM VÀ CẮT XEM TRƯỚC TIN NHẮN
+        // ==========================================
+        LogInfo("--- HỆ THỐNG LỌC CHAT ---")
+        
+        var chatMessage = "Chào mọi người, tôi thích hack game này lắm."
+        var filteredMessage = chatMessage
+        
+        // Tìm kiếm vị trí từ cấm "hack"
+        var banWordIndex = strings.Find(chatMessage, "hack", 0)
+        
+        if banWordIndex != -1 {
+            LogInfo("Cảnh báo: Phát hiện từ cấm tại vị trí: " + convert.ToString(banWordIndex))
+            
+            // Thay thế từ cấm bằng dấu sao
+            filteredMessage = strings.Replace(chatMessage, "hack", "****")
+        }
+        
+        LogInfo("Tin nhắn sau lọc: " + filteredMessage)
+        
+        // Cắt lấy 15 ký tự đầu tiên để hiển thị xem trước (Preview)
+        var previewMsg = strings.Sub(filteredMessage, 0, 15)
+        LogInfo("Tin xem trước: " + previewMsg + "...")
+        
+        // ==========================================
+        // PHẦN 4: PHÂN TÍCH VÀ GHÉP DANH SÁCH TRANG BỊ
+        // ==========================================
+        LogInfo("--- HỆ THỐNG PHÂN TÍCH LOOT ---")
+        
+        var lootString = "KiemSet|GiapVang|BinhHP|KeoNgot"
+        
+        // Tách chuỗi thành danh sách List dựa trên ký tự phân tách '|'
+        var lootList = strings.Split(lootString, "|")
+        
+        // Ghép các phần tử trong danh sách thành một chuỗi mới phân tách bằng dấu phẩy
+        var formattedLoot = strings.Join(lootList, ", ")
+        LogInfo("Trang bị nhận được: " + formattedLoot)
+    }
+}

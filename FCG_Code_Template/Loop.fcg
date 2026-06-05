@@ -1,0 +1,69 @@
+// ĐỀ BÀI (QUEST):
+// Thiết lập một hệ thống quản lý phần thưởng và sự kiện bão thiên thạch khi trận đấu bắt đầu (OnGameStart).
+// Tập lệnh chạy trên Server ([platform_server]).
+//
+// Yêu cầu chi tiết:
+// 1. Duyệt qua tất cả người chơi trong phòng (GetAllPlayers()) bằng vòng lặp for range.
+//    Với mỗi người chơi:
+//    - Tặng lượng kim cương ngẫu nhiên từ 10 đến 50 (sử dụng math.RandomInt cận hở: từ 10 đến 51).
+//    - Hiển thị thông báo (NotifyShowTips) cho người chơi đó: "Bạn nhận được {Lượng_kim_cương} Kim cương!".
+//
+// 2. Kích hoạt một cơn bão thiên thạch quét qua vùng bản đồ 2D dạng lưới kích thước 4x4 (tọa độ X từ 0 đến 3, Y từ 0 đến 3).
+//    Sử dụng 2 vòng lặp for lồng nhau (nested loop) để quét tọa độ (X, Y).
+//    Lưu ý cận hở của vòng lặp for trong FCG: chạy từ 0 đến trước 4 (for x = 0, 4, 1).
+//    Tại mỗi ô tọa độ (X, Y):
+//    - Sinh một số ngẫu nhiên từ 1 đến 100 đại diện cho tỉ lệ (sử dụng math.RandomInt cận hở: từ 1 đến 101).
+//    - Nếu tỉ lệ nhận được nhỏ hơn hoặc bằng 25 (tương ứng 25% cơ hội rơi trúng):
+//      * In log thông báo: "Thiên thạch rơi trúng tọa độ: (X, Y)".
+//      * Tiếp tục thực hiện một vòng lặp while tung xúc xắc ngẫu nhiên từ 1 đến 6 (sử dụng math.RandomInt(1, 7)) để tích lũy điểm năng lượng.
+//        Vòng lặp while sẽ liên tục tung xúc xắc và cộng dồn điểm năng lượng cho đến khi tung trúng mặt 6 thì dừng lại.
+//      * Sau khi dừng, in thêm log: "Thu thập được {Tổng_điểm} điểm năng lượng từ vụ nổ.".
+
+import "StdLibrary.fcc" as std
+import "Math.fcc" as math
+
+[platform_server]
+graph BaiTapVongLap {
+
+    event OnGameStart() {
+        // --- BƯỚC 1: PHÁT THƯỞNG CHO NGƯỜI CHƠI ---
+        var players = GetAllPlayers()
+        for index, player in players {
+            // Nhận ngẫu nhiên từ 10 đến 50 kim cương (cận trên là 51)
+            var rewardAmount = math.RandomInt(10, 51)
+            
+            // Hiển thị thông báo cho người chơi
+            NotifyShowTips(player, "Bạn nhận được " + rewardAmount + " Kim cương!", #FFD700FF, 3000)
+        }
+
+        // --- BƯỚC 2: CƠN BÃO THIÊN THẠCH LƯỚI 2D ---
+        LogInfo("--- BẮT ĐẦU CƠN BÃO THIÊN THẠCH ---")
+        
+        // Quét X từ 0 đến 3 (cận trên là 4)
+        for x = 0, 4, 1 {
+            // Quét Y từ 0 đến 3 (cận trên là 4)
+            for y = 0, 4, 1 {
+                // Sinh tỉ lệ ngẫu nhiên từ 1 đến 100 (cận trên là 101)
+                var rate = math.RandomInt(1, 101)
+                
+                // Tỉ lệ 25% thiên thạch rơi trúng
+                if rate <= 25 {
+                    LogInfo("Thiên thạch rơi trúng tọa độ: (" + x + ", " + y + ")")
+                    
+                    var energyCollected = 0
+                    var dice = 0
+                    
+                    // Vòng lặp while tung xúc xắc tích lũy năng lượng cho đến khi ra mặt 6 (cận trên là 7)
+                    while dice != 6 {
+                        dice = math.RandomInt(1, 7)
+                        energyCollected = energyCollected + dice
+                    }
+                    
+                    LogInfo("Thu thập được " + energyCollected + " điểm năng lượng từ vụ nổ.")
+                }
+            }
+        }
+        
+        LogInfo("--- KẾT THÚC CƠN BÃO THIÊN THẠCH ---")
+    }
+}

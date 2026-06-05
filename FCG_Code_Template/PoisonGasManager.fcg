@@ -1,0 +1,40 @@
+// ĐỀ BÀI (QUEST):
+// Thiết lập một hệ thống độc lập tự động gây sát thương cho người chơi khi đứng trong vùng nguy hiểm mỗi 2 giây.
+// Yêu cầu:
+// 1. Viết một hàm thường (TinhSatThuongGas) để tính toán lượng sát thương bằng 5% HP hiện tại.
+// 2. Viết một hàm bất đồng bộ (BatDauRutMau) chạy lặp vô hạn (while) cho đến khi người chơi bị loại (HP <= 0), thực hiện rút máu và ghi log sau mỗi 2 giây (2000 ms).
+// 3. Lắng nghe sự kiện người chơi tham gia trận đấu (OnPlayerJoin) và kích hoạt hàm bất đồng bộ chạy ngầm (start BatDauRutMau) riêng biệt cho từng người chơi.
+
+import "StdLibrary.fcc" as std
+import "Math.fcc" as math
+import "Player.fcc" as Player
+import "Combat.fcc" as Combat
+
+[platform_server]
+graph PoisonGasManager {
+
+    // Hàm thường tính toán lượng sát thương
+    func TinhSatThuongGas(hpHienTai int) int {
+        // Gây sát thương tương đương 5% lượng máu hiện tại của người chơi
+        return math.Ceil(hpHienTai * 0.05)
+    }
+
+    // Hàm bất đồng bộ gây sát thương theo thời gian (chạy lặp vô hạn cho đến khi người chơi bị loại)
+    async func BatDauRutMau(player entity<Player>) {
+        while player<Player>.HP > 0 {
+            var satThuong = TinhSatThuongGas(player<Player>.HP)
+            
+            // Cập nhật máu cho người chơi (giới hạn tối thiểu là 0)
+            DealDamage(player, nil, DamageType.DamageZone, satThuong)
+            LogInfo("Người chơi: " + player<Player>.NickName + " | HP còn lại: " + (player<Player>.HP as string))
+            
+            // Đợi 2 giây trước lượt rút máu tiếp theo
+            WaitForMillisecond(2000)
+        }
+    }
+
+    event OnPlayerJoin(player entity<Player>) {
+        // Sử dụng 'start' để kích hoạt luồng rút máu ngầm riêng cho từng người chơi khi họ tham gia game
+        start BatDauRutMau(player)
+    }
+}

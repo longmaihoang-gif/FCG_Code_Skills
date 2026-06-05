@@ -1,0 +1,31 @@
+// ĐỀ BÀI (QUEST):
+// Viết một tập lệnh FCG chạy trên máy chủ ([platform_server]) có tên là ZoneCombatManager, được gắn trực tiếp vào thực thể người chơi.
+// Lắng nghe sự kiện khi thực thể nhận sát thương (event OnTakeDamage) để tự động kiểm tra trạng thái của bản thân (thisEntity):
+// 1. Lấy lượng máu hiện tại từ thuộc tính HP (thisEntity<Player>.HP) và số thứ tự đội từ thuộc tính TeamSeq của HostTeam ((thisEntity<Player>.HostTeam)<Team>.TeamSeq).
+// 2. Nếu máu hiện tại nhỏ hơn hoặc bằng 0, in log debug ra Console: "Người chơi đã bị loại!".
+// 3. Nếu máu hiện tại dưới 40 VÀ thuộc đội số 2 (TeamSeq == 2), hiển thị thông báo chạy chữ màu đỏ (#FF0000FF) trong 2 giây (2000 ms) lên màn hình của mình: "Đồng đội Đội 2 cần hỗ trợ khẩn cấp!".
+// 4. Các trường hợp còn lại, hiển thị thông báo chạy chữ màu xanh lá (#00FF00FF) trong 1 giây (1000 ms): "Trạng thái bình thường.".
+
+import "StdLibrary.fcc" as std
+import "Combat.fcc" as combat
+
+// Tập lệnh gắn vào người chơi --> thisEntity<Player>
+[platform_server]
+graph ZoneCombatManager {
+
+    event OnTakeDamage(Attacker entity<Entity>, Damagetype DamageType, Damage int, Damagedbodyparttype DamagedBodyPartType) {
+        var currentHP = thisEntity<Player>.HP
+        var teamId = (thisEntity<Player>.HostTeam)<Team>.TeamSeq
+
+        // Điều kiện 1: Người chơi bị loại (Máu <= 0)
+        if currentHP <= 0 {
+            LogInfo("Người chơi đã bị loại!")
+        } else if (currentHP < 40 && teamId == 2) {
+            // Điều kiện 2: Máu dưới 40 VÀ thuộc Đội số 2 (TeamID == 2)
+            NotifyShowTips(thisEntity<Player>, "Đồng đội Đội 2 cần hỗ trợ khẩn cấp!", #FF0000FF, 2000)
+        } else {
+            // Điều kiện 3: Các trường hợp bình thường còn lại
+            NotifyShowTips(thisEntity<Player>, "Trạng thái bình thường.", #00FF00FF, 1000)
+        }
+    }
+}

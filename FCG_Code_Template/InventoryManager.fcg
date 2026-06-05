@@ -1,0 +1,78 @@
+// ĐỀ BÀI (QUEST):
+// Thiết lập một hệ thống quản lý túi đồ (Inventory) và danh sách phần thưởng ngẫu nhiên cho người chơi khi game bắt đầu (OnGameStart).
+// Tập lệnh chạy trên Server ([platform_server]).
+//
+// Yêu cầu chi tiết:
+// 1. Quản lý danh sách phần thưởng (List):
+//    - Khởi tạo một List chứa các ID phần thưởng: 1001, 1002, 1003, 1004.
+//    - Sử dụng list.Shuffle để xáo trộn ngẫu nhiên thứ tự phần thưởng.
+//    - Sử dụng list.IndexOf để tìm vị trí chỉ mục (index) của phần thưởng có ID là 1003 sau khi xáo trộn và in log ra Console:
+//      "Phần thưởng 1003 nằm ở vị trí chỉ mục: {Chỉ_mục}".
+//
+// 2. Quản lý túi đồ người chơi (Map):
+//    - Khởi tạo một Map ánh xạ từ Tên vật phẩm (string) sang Số lượng (int) có gán sẵn dữ liệu ban đầu:
+//      "KiemGo": 1, "BinhMau": 5, "ManhNgoc": 0.
+//    - Kiểm tra xem túi đồ có chứa khóa "ManhNgoc" hay không. Nếu có, thực hiện xóa khóa này khỏi túi đồ (sử dụng map.Remove).
+//    - Cập nhật tăng số lượng "BinhMau" thêm 3 bình nữa.
+//    - Sử dụng vòng lặp duyệt trực tiếp Map (for key, value in map) để in toàn bộ vật phẩm ra Console với định dạng:
+//      "Vật phẩm trong túi: {Tên_vật_phẩm} | Số lượng: {Số_lượng}".
+//    - In ra tổng số loại vật phẩm còn lại trong túi đồ bằng hàm map.Length.
+
+import "StdLibrary.fcc" as std
+import "List.fcc" as list
+import "Map.fcc" as map
+import "Convert.fcc" as conv
+
+[platform_server]
+graph InventoryManager {
+
+    event OnGameStart() {
+        // ==========================================
+        // PHẦN 1: QUẢN LÝ DANH SÁCH PHẦN THƯỞNG (LIST)
+        // ==========================================
+        LogInfo("--- HỆ THỐNG PHÁT PHẦN THƯỞNG ---")
+        
+        // Khởi tạo List chứa 4 phần thưởng dạng số nguyên
+        var rewardList List<int> = List<int>{}
+        list.Append(rewardList, 1001)
+        list.Append(rewardList, 1002)
+        list.Append(rewardList, 1003)
+        list.Append(rewardList, 1004)
+        
+        // Xáo trộn ngẫu nhiên danh sách phần thưởng
+        list.Shuffle(rewardList)
+        
+        // Tìm vị trí chỉ mục của phần thưởng 1003
+        var targetIndex = list.IndexOf(rewardList, 1003)
+        LogInfo("Phần thưởng 1003 nằm ở vị trí chỉ mục: " + ToString(targetIndex))
+        
+        // ==========================================
+        // PHẦN 2: QUẢN LÝ TÚI ĐỒ NGƯỜI CHƠI (MAP)
+        // ==========================================
+        LogInfo("--- HỆ THỐNG QUẢN LÝ TÚI ĐỒ ---")
+        
+        // Khởi tạo Map có sẵn dữ liệu vật phẩm ban đầu
+        var inventory = Map<string, int>{"KiemGo": 1, "BinhMau": 5, "ManhNgoc": 0}
+        
+        // Kiểm tra và loại bỏ vật phẩm thừa (ManhNgoc)
+        if map.ContainKey(inventory, "ManhNgoc") {
+            map.Remove(inventory, "ManhNgoc")
+            LogInfo("Đã xóa 'ManhNgoc' ra khỏi túi đồ.")
+        }
+        
+        // Tăng số lượng bình máu hiện có thêm 3 bình
+        if map.ContainKey(inventory, "BinhMau") {
+            inventory["BinhMau"] = inventory["BinhMau"] + 3
+        }
+        
+        // Duyệt trực tiếp qua Map để in thông tin vật phẩm
+        for item, quantity in inventory {
+            // Biến item tự động nhận kiểu string, quantity tự động nhận kiểu int
+            LogInfo("Vật phẩm trong túi: " + item + " | Số lượng: " + ToString(quantity))
+        }
+        
+        // Lấy tổng số loại vật phẩm còn lại trong túi
+        var totalItems = map.Length(inventory)
+        LogInfo("Tổng số loại vật phẩm còn lại trong túi đồ: " + ToString(totalItems))
+    }
+}
